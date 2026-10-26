@@ -1,21 +1,3 @@
-/* =============================================================================
-   TEMAS del Sistema de Tickets TICS. Cada tema es solo un bloque de variables: estilos.css no tiene ningún color suelto.
-   Para añadir un tema: copiar un bloque, cambiar el selector [data-tema="..."] y registrarlo en accounts/temas.py.
-
-   Variables
-     fondos        --fondo (página) --fondo-2 (bandas, hover) --tarjeta --campo (campos de formulario)
-     bordes        --borde --borde-fuerte --foco (anillo de foco)
-     texto         --texto --suave (secundario)
-     acción        --primario --primario-hover --sobre-primario --acento (enlaces, códigos)
-     barra         --barra --barra-texto --barra-hover
-     semánticos    --ok --aviso --peligro
-     estados       --est-<estado>   prioridades --pri-<prioridad>   (+ --sobre-critica)
-     forma         --radio --radio-chico --sombra --brillo (efecto al pasar el cursor) --decor (fondo decorativo)
-     tipografía    --f-ui --f-titulo --f-mono --titulo-peso --titulo-espacio
-   Los colores de texto cumplen contraste WCAG AA (4.5:1): lo comprueba accounts/test_temas.py.
-   ============================================================================= */
-
-/* ---- TITANIO (por defecto): claro, gris acero, azul hielo y naranja de señal -------------------------------- */
 :root, :root[data-tema="titanio"] {
   color-scheme: light;
   --fondo: #E9ECEF; --fondo-2: #DFE3E7; --tarjeta: #F8F9FA; --campo: #FFFFFF;
@@ -33,7 +15,6 @@
   --f-mono: "IBM Plex Mono", Consolas, monospace; --titulo-peso: 600; --titulo-espacio: 0;
 }
 
-/* ---- GRAFITO: oscuro minimalista con un solo color vivo (naranja brasa) --------------------------------------- */
 :root[data-tema="grafito"] {
   color-scheme: dark;
   --fondo: #121214; --fondo-2: #1A1A1E; --tarjeta: #1B1B1F; --campo: #141417;
@@ -51,7 +32,6 @@
   --f-mono: "JetBrains Mono", Consolas, monospace; --titulo-peso: 600; --titulo-espacio: -.01em;
 }
 
-/* ---- NEÓN: oscuro cyberpunk, cian eléctrico, naranja para lo urgente -------------------------------------------- */
 :root[data-tema="neon"] {
   color-scheme: dark;
   --fondo: #0B0F1A; --fondo-2: #0F1628; --tarjeta: #121A2E; --campo: #0D1424;
@@ -71,7 +51,6 @@
   --f-mono: "JetBrains Mono", Consolas, monospace; --titulo-peso: 600; --titulo-espacio: .02em;
 }
 
-/* ---- TINTA: claro tono papel, azul tinta y bermellón ----------------------------------------------------------- */
 :root[data-tema="tinta"] {
   color-scheme: light;
   --fondo: #FAF7F2; --fondo-2: #F3EEE5; --tarjeta: #FFFFFF; --campo: #FFFFFF;

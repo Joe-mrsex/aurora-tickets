@@ -1,11 +1,4 @@
 from django.urls import path
-
 from . import views
-
-app_name = "auditoria"
-
-urlpatterns = [
-    path("", views.lista, name="lista"),
-    path("verificar/", views.verificar, name="verificar"),
-    path("depurar/", views.depurar, name="depurar"),
-]
+app_name = 'auditoria'
+urlpatterns = [path('', views.lista, name='lista'), path('verificar/', views.verificar, name='verificar'), path('depurar/', views.depurar, name='depurar')]

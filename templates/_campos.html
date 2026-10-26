@@ -1,0 +1,14 @@
+{# Dibuja todos los campos de un formulario Django con etiqueta, ayuda y errores. Uso: {% include "_campos.html" with form=form %} #}
+{% if form.non_field_errors %}<div class="mensaje error">{{ form.non_field_errors }}</div>{% endif %}
+{% for campo in form %}
+  <div class="{% if campo.field.widget.input_type == 'checkbox' %}check{% endif %}">
+    {% if campo.field.widget.input_type == 'checkbox' %}
+      <label style="margin-top:14px">{{ campo }} {{ campo.label }}</label>
+    {% else %}
+      <label for="{{ campo.id_for_label }}">{{ campo.label }}{% if campo.field.required %} *{% endif %}</label>
+      {{ campo }}
+    {% endif %}
+    {% if campo.help_text %}<div class="ayuda">{{ campo.help_text }}</div>{% endif %}
+    {{ campo.errors }}
+  </div>
+{% endfor %}

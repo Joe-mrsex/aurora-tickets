@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load iconos %}
+{% block titulo %}Depurar auditoría · {{ nombre_sistema }}{% endblock %}
+{% block contenido %}
+<div class="tarjeta" style="max-width:700px">
+  <h1>Depurar registros antiguos</h1>
+  <p class="subtitulo">Elimina de forma permanente los registros de auditoría anteriores a una fecha. Por seguridad se conservan siempre los últimos {{ retencion }} días (se puede depurar hasta el {{ limite|date:"d/m/Y" }}).</p>
+
+  <form method="get">
+    <label for="hasta">Borrar todo lo anterior al día:</label>
+    <input type="date" id="hasta" name="hasta" value="{{ hasta|date:'Y-m-d' }}" max="{{ limite|date:'Y-m-d' }}" required>
+    <p><button class="btn secundario" type="submit">Ver cuántos registros se borrarían</button></p>
+  </form>
+
+  {% if hasta %}
+    <div class="acciones-caja">
+    {% if cantidad %}
+      <div class="mensaje error">Se eliminarán <strong>{{ cantidad }}</strong> registros anteriores al {{ hasta|date:"d/m/Y" }}. Esta acción <strong>no se puede deshacer</strong>; quedará registrada en la auditoría.</div>
+      <form method="post">{% csrf_token %}
+        <input type="hidden" name="hasta" value="{{ hasta|date:'Y-m-d' }}">
+        <input type="hidden" name="confirmar" value="1">
+        <button class="btn rojo" type="submit">Sí, depurar {{ cantidad }} registros</button>
+        <a class="btn secundario" href="{% url 'auditoria:lista' %}">Cancelar</a>
+      </form>
+    {% else %}
+      <p class="ayuda">No hay registros anteriores a esa fecha.</p>
+    {% endif %}
+    </div>
+  {% else %}
+    <a class="btn secundario" href="{% url 'auditoria:lista' %}">{% icono "arrow-left" %} Volver</a>
+  {% endif %}
+</div>
+{% endblock %}

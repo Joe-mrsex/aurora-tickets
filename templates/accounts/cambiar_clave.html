@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block titulo %}Cambiar contraseña · {{ nombre_sistema }}{% endblock %}
+{% block contenido %}
+<div class="login tarjeta con-aurora">
+  {% include "aurora/grande.html" %}
+  <h1>{% if obligatorio %}Elige tu contraseña{% else %}Cambiar contraseña{% endif %}</h1>
+  {% if obligatorio %}
+    <p class="subtitulo">Estás entrando con una contraseña temporal. Para usar el sistema, elige una propia que solo tú conozcas.</p>
+  {% endif %}
+  <form method="post">{% csrf_token %}
+    {% include "_campos.html" %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <p style="margin-top:18px"><button class="btn" type="submit">Guardar contraseña</button>
+    {% if not obligatorio %}<a class="btn secundario" href="{% url 'inicio' %}">Cancelar</a>{% endif %}</p>
+  </form>
+</div>
+{% endblock %}

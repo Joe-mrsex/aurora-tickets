@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block contenido %}
+<div class="tarjeta" style="max-width:560px">
+  <h1>¿Eliminar?</h1>
+  <p>Vas a eliminar: <strong>{{ objeto }}</strong>. Esta acción quedará registrada en la auditoría.</p>
+  <form method="post">{% csrf_token %}
+    <button class="btn rojo" type="submit">Sí, eliminar</button>
+    <a class="btn secundario" href="{% url volver %}">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

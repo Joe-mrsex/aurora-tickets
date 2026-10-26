@@ -1,0 +1,90 @@
+/* =============================================================================
+   TEMAS del Sistema de Tickets TICS. Cada tema es solo un bloque de variables: estilos.css no tiene ningún color suelto.
+   Para añadir un tema: copiar un bloque, cambiar el selector [data-tema="..."] y registrarlo en accounts/temas.py.
+
+   Variables
+     fondos        --fondo (página) --fondo-2 (bandas, hover) --tarjeta --campo (campos de formulario)
+     bordes        --borde --borde-fuerte --foco (anillo de foco)
+     texto         --texto --suave (secundario)
+     acción        --primario --primario-hover --sobre-primario --acento (enlaces, códigos)
+     barra         --barra --barra-texto --barra-hover
+     semánticos    --ok --aviso --peligro
+     estados       --est-<estado>   prioridades --pri-<prioridad>   (+ --sobre-critica)
+     forma         --radio --radio-chico --sombra --brillo (efecto al pasar el cursor) --decor (fondo decorativo)
+     tipografía    --f-ui --f-titulo --f-mono --titulo-peso --titulo-espacio
+   Los colores de texto cumplen contraste WCAG AA (4.5:1): lo comprueba accounts/test_temas.py.
+   ============================================================================= */
+
+/* ---- TITANIO (por defecto): claro, gris acero, azul hielo y naranja de señal -------------------------------- */
+:root, :root[data-tema="titanio"] {
+  color-scheme: light;
+  --fondo: #E9ECEF; --fondo-2: #DFE3E7; --tarjeta: #F8F9FA; --campo: #FFFFFF;
+  --borde: #CED4DA; --borde-fuerte: #AEB6BE; --foco: #38BDF8;
+  --texto: #212529; --suave: #566069;
+  --primario: #0369A1; --primario-hover: #025685; --sobre-primario: #FFFFFF; --acento: #0369A1;
+  --barra: #343A40; --barra-texto: #E6EAEE; --barra-hover: rgba(255,255,255,.12); --marca: #38BDF8;
+  --ok: #0D655F; --aviso: #924307; --peligro: #9F350A;
+  --est-nuevo: #035E91; --est-asignado: #6D28D9; --est-en_proceso: #924307; --est-pendiente: #9F350A;
+  --est-resuelto: #0D655F; --est-cerrado: #475569; --est-cancelado: #565B66;
+  --pri-critica: #B91C1C; --sobre-critica: #FFFFFF; --pri-alta: #9F350A; --pri-media: #924307; --pri-baja: #0D655F;
+  --radio: 10px; --radio-chico: 7px; --sombra: 0 1px 2px rgba(33,37,41,.08); --brillo: 0 2px 10px rgba(3,105,161,.18);
+  --decor: none; --decor-tam: auto;
+  --f-ui: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif; --f-titulo: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", Consolas, monospace; --titulo-peso: 600; --titulo-espacio: 0;
+}
+
+/* ---- GRAFITO: oscuro minimalista con un solo color vivo (naranja brasa) --------------------------------------- */
+:root[data-tema="grafito"] {
+  color-scheme: dark;
+  --fondo: #121214; --fondo-2: #1A1A1E; --tarjeta: #1B1B1F; --campo: #141417;
+  --borde: #2A2A30; --borde-fuerte: #3C3C45; --foco: #FF7A5C;
+  --texto: #F2F2F3; --suave: #A0A0AB;
+  --primario: #FF5A36; --primario-hover: #FF7350; --sobre-primario: #1A0A05; --acento: #FF7A5C;
+  --barra: #17171A; --barra-texto: #E4E4E7; --barra-hover: rgba(255,255,255,.08); --marca: #FF5A36;
+  --ok: #5EEAD4; --aviso: #F59E0B; --peligro: #FB7185;
+  --est-nuevo: #A1A1AA; --est-asignado: #A78BFA; --est-en_proceso: #F59E0B; --est-pendiente: #FB923C;
+  --est-resuelto: #5EEAD4; --est-cerrado: #D4D4D8; --est-cancelado: #9797A0;
+  --pri-critica: #FF5A36; --sobre-critica: #1A0A05; --pri-alta: #FB923C; --pri-media: #F59E0B; --pri-baja: #5EEAD4;
+  --radio: 8px; --radio-chico: 6px; --sombra: none; --brillo: 0 0 0 1px rgba(255,90,54,.45);
+  --decor: none; --decor-tam: auto;
+  --f-ui: "Space Grotesk", "Segoe UI", system-ui, sans-serif; --f-titulo: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", Consolas, monospace; --titulo-peso: 600; --titulo-espacio: -.01em;
+}
+
+/* ---- NEÓN: oscuro cyberpunk, cian eléctrico, naranja para lo urgente -------------------------------------------- */
+:root[data-tema="neon"] {
+  color-scheme: dark;
+  --fondo: #0B0F1A; --fondo-2: #0F1628; --tarjeta: #121A2E; --campo: #0D1424;
+  --borde: #1E2A44; --borde-fuerte: #2C3E66; --foco: #22D3EE;
+  --texto: #E6F1FF; --suave: #8FA0C4;
+  --primario: #22D3EE; --primario-hover: #67E8F9; --sobre-primario: #04202B; --acento: #22D3EE;
+  --barra: #0F1526; --barra-texto: #CFE3FF; --barra-hover: rgba(34,211,238,.12); --marca: #22D3EE;
+  --ok: #2DD4BF; --aviso: #FF9F43; --peligro: #FF5C5C;
+  --est-nuevo: #22D3EE; --est-asignado: #A78BFA; --est-en_proceso: #FF9F43; --est-pendiente: #FF6B35;
+  --est-resuelto: #60A5FA; --est-cerrado: #8FA0C4; --est-cancelado: #8697B9;
+  --pri-critica: #FF5C5C; --sobre-critica: #1F0606; --pri-alta: #FF6B35; --pri-media: #FF9F43; --pri-baja: #2DD4BF;
+  --radio: 10px; --radio-chico: 7px; --sombra: none;
+  --brillo: 0 0 0 1px rgba(34,211,238,.55), 0 0 18px rgba(34,211,238,.28);
+  --decor: linear-gradient(rgba(34,211,238,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(34,211,238,.045) 1px, transparent 1px);
+  --decor-tam: 34px 34px;
+  --f-ui: "Inter", "Segoe UI", system-ui, sans-serif; --f-titulo: "Chakra Petch", "Inter", "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", Consolas, monospace; --titulo-peso: 600; --titulo-espacio: .02em;
+}
+
+/* ---- TINTA: claro tono papel, azul tinta y bermellón ----------------------------------------------------------- */
+:root[data-tema="tinta"] {
+  color-scheme: light;
+  --fondo: #FAF7F2; --fondo-2: #F3EEE5; --tarjeta: #FFFFFF; --campo: #FFFFFF;
+  --borde: #E4DDD0; --borde-fuerte: #CFC6B4; --foco: #2F4B9A;
+  --texto: #1B2238; --suave: #5E6275;
+  --primario: #D9381E; --primario-hover: #BE2F17; --sobre-primario: #FFFFFF; --acento: #2F4B9A;
+  --barra: #1B2238; --barra-texto: #F1ECE2; --barra-hover: rgba(255,255,255,.12); --marca: #F5B8A8;
+  --ok: #0E6D65; --aviso: #9E4908; --peligro: #B91C1C;
+  --est-nuevo: #2F4B9A; --est-asignado: #6B4FA0; --est-en_proceso: #9E4908; --est-pendiente: #AD3A0B;
+  --est-resuelto: #0E6D65; --est-cerrado: #57534E; --est-cancelado: #67615D;
+  --pri-critica: #B91C1C; --sobre-critica: #FFFFFF; --pri-alta: #AD3A0B; --pri-media: #9E4908; --pri-baja: #0E6D65;
+  --radio: 6px; --radio-chico: 4px; --sombra: 0 1px 0 rgba(27,34,56,.06); --brillo: 0 2px 8px rgba(27,34,56,.14);
+  --decor: none; --decor-tam: auto;
+  --f-ui: "Inter", "Segoe UI", system-ui, sans-serif; --f-titulo: "Fraunces", Georgia, serif;
+  --f-mono: "IBM Plex Mono", Consolas, monospace; --titulo-peso: 600; --titulo-espacio: 0;
+}

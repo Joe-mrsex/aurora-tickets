@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block titulo %}Verificación · {{ nombre_sistema }}{% endblock %}
+{% block contenido %}
+<div class="login tarjeta con-aurora">
+  {% include "aurora/grande.html" %}
+  <h1>Verificación en dos pasos</h1>
+  <p class="subtitulo" style="text-align:center">Escribe el código de 6 dígitos que muestra la aplicación de tu celular.</p>
+  <form method="post">{% csrf_token %}
+    {% if error %}<div class="mensaje error">{{ error }}</div>{% endif %}
+    <label for="id_codigo">Código</label>
+    <input type="text" name="codigo" id="id_codigo" inputmode="numeric" autocomplete="one-time-code" autofocus required maxlength="20">
+    <div class="check"><label style="margin-top:14px"><input type="checkbox" name="recordar" value="1"> Recordar este equipo {{ dias }} días</label></div>
+    <div class="ayuda">¿Perdiste el celular? Escribe uno de tus códigos de recuperación en lugar del código de 6 dígitos.</div>
+    <input type="hidden" name="next" value="{{ next }}">
+    <button class="btn" type="submit">Verificar</button>
+  </form>
+</div>
+{% endblock %}

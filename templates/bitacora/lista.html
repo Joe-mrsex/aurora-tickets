@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load iconos %}
+{% block titulo %}Bitácora · {{ nombre_sistema }}{% endblock %}
+{% block contenido %}
+<div class="cabecera"><div><h1>Bitácora de actividades de TI</h1>
+<p class="subtitulo">{{ pagina.paginator.count }} actividad(es) · {{ total_horas }} h registradas en este filtro. Los tickets resueltos se agregan solos.</p></div>
+<div><a class="btn secundario" href="{% url 'bitacora:matriz' %}?{{ consulta }}">{% icono "download" %} {% if es_jefe %}Descargar matriz (Excel){% else %}Mi matriz (Excel){% endif %}</a>
+<a class="btn" href="{% url 'bitacora:crear' %}">+ Registrar actividad</a></div></div>
+<form class="tarjeta filtros" method="get">
+  <div style="flex:1;min-width:180px"><label>Buscar</label><input type="search" name="q" value="{{ q }}"></div>
+  <div><label>Tipo</label><select name="tipo"><option value="">Todos</option>{% for v, n in tipos %}<option value="{{ v }}" {% if filtro.tipo == v %}selected{% endif %}>{{ n }}</option>{% endfor %}</select></div>
+  {% if es_jefe %}<div><label>Técnico</label><select name="tecnico"><option value="">Todos</option>{% for t in tecnicos %}<option value="{{ t.id }}" {% if filtro.tecnico == t.id|stringformat:"s" %}selected{% endif %}>{{ t.nombre_completo }}</option>{% endfor %}</select></div>{% endif %}
+  <div><label>Desde</label><input type="date" name="desde" value="{{ filtro.desde }}"></div>
+  <div><label>Hasta</label><input type="date" name="hasta" value="{{ filtro.hasta }}"></div>
+  <div><button class="btn" type="submit">Filtrar</button> <a class="btn secundario" href="?">Limpiar</a></div>
+</form>
+<div class="tarjeta tabla-scroll"><table>
+<thead><tr><th>Fecha</th><th>Técnico</th><th>Tipo</th><th>Actividad</th><th>Min.</th><th>Equipo / Ticket</th><th></th></tr></thead><tbody>
+{% for a in pagina %}<tr>
+<td>{{ a.fecha|date:"d/m/Y" }}</td><td>{{ a.tecnico.nombre_completo }}</td><td>{{ a.get_tipo_display }}</td>
+<td><strong>{{ a.titulo }}</strong>{% if a.descripcion %}<div class="ayuda">{{ a.descripcion|truncatechars:160 }}</div>{% endif %}</td>
+<td>{{ a.duracion_minutos }}</td>
+<td>{% if a.equipo %}{{ a.equipo.codigo }}<br>{% endif %}{% if a.ticket %}<a href="{% url 'tickets:detalle' a.ticket.pk %}">{{ a.ticket.codigo }}</a>{% endif %}</td>
+<td>{% if not a.automatica %}{% if a.tecnico_id == user.id or es_jefe %}<a class="btn chico secundario" href="{% url 'bitacora:editar' a.pk %}">Editar</a>{% endif %}{% else %}<span class="ayuda">auto</span>{% endif %}
+{% if es_jefe %}<a class="btn chico rojo" href="{% url 'bitacora:eliminar' a.pk %}">{% icono "x" %}</a>{% endif %}</td></tr>
+{% empty %}<tr><td colspan="7" class="ayuda" style="text-align:center;padding:30px">Sin actividades.</td></tr>{% endfor %}
+</tbody></table>{% include "_paginacion.html" %}</div>
+{% endblock %}

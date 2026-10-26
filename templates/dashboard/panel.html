@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load iconos formato %}
+{% block titulo %}Panel · {{ nombre_sistema }}{% endblock %}
+{% block contenido %}
+<div class="cabecera"><div><h1>Panel de control de TI</h1><p class="subtitulo">Indicadores de los últimos {{ dias }} días</p></div>
+<div>{% for d in opciones_dias %}<a class="btn chico {% if d != dias %}secundario{% endif %}" href="?dias={{ d }}">{{ d }} días</a> {% endfor %}</div></div>
+
+<div class="kpis">
+  <a class="kpi" href="{% url 'tickets:lista' %}?vista=abiertos"><div class="valor">{{ kpis.abiertos }}</div><div class="nombre">Tickets abiertos</div></a>
+  <a class="kpi amarillo" href="{% url 'tickets:lista' %}?vista=sin_asignar"><div class="valor">{{ kpis.sin_asignar }}</div><div class="nombre">Sin asignar</div></a>
+  <a class="kpi rojo" href="{% url 'tickets:lista' %}?vista=vencidos&amp;abiertos=1"><div class="valor">{{ kpis.vencidos }}</div><div class="nombre">Vencidos abiertos</div></a>
+  <div class="kpi amarillo"><div class="valor">{{ kpis.por_vencer }}</div><div class="nombre">Vencen en &lt; 2 h</div></div>
+  <a class="kpi" href="{% url 'tickets:lista' %}?vista=reprogramados"><div class="valor">{{ kpis.reprogramados }}</div><div class="nombre">Reprogramados (SLA en pausa)</div></a>
+  <div class="kpi"><div class="valor">{{ kpis.creados }}</div><div class="nombre">Creados en el período</div></div>
+  <div class="kpi verde"><div class="valor">{{ kpis.resueltos }}</div><div class="nombre">Resueltos en el período</div></div>
+  <div class="kpi verde"><div class="valor">{% if kpis.cumplimiento is None %}—{% else %}{{ kpis.cumplimiento }}<span class="unidad">%</span>{% endif %}</div><div class="nombre">Cumplimiento de SLA</div></div>
+  <div class="kpi"><div class="valor">{% if kpis.tiempo_resolucion is None %}—{% else %}{{ kpis.tiempo_resolucion }}<span class="unidad">h</span>{% endif %}</div><div class="nombre">Tiempo medio de resolución</div></div>
+  <div class="kpi"><div class="valor">{% if kpis.primera_atencion is None %}—{% else %}{{ kpis.primera_atencion }}<span class="unidad">h</span>{% endif %}</div><div class="nombre">Tiempo a 1ª atención</div></div>
+</div>
+
+<div class="tarjeta">
+  <h2>Tickets creados vs. resueltos por día</h2>
+  <div class="leyenda"><span style="background:var(--primario)"></span>Creados <span style="background:var(--ok)"></span>Resueltos</div>
+  <div class="serie">
+    {% for s in serie %}<div class="dia" title="{{ s.dia|date:'d/m' }}: {{ s.creados }} creados, {{ s.resueltos }} resueltos">
+      <div class="b c" style="height:{{ s.h_creados }}%"></div><div class="b r" style="height:{{ s.h_resueltos }}%"></div></div>{% endfor %}
+  </div>
+  <div class="ayuda" style="display:flex;justify-content:space-between"><span>{{ serie.0.dia|date:"d/m" }}</span><span>hoy</span></div>
+</div>
+
+<div class="rejilla c3">
+  <div class="tarjeta"><h2>Abiertos por estado</h2>{% include "dashboard/_barras.html" with datos=por_estado %}</div>
+  <div class="tarjeta"><h2>Abiertos por prioridad</h2>{% include "dashboard/_barras.html" with datos=por_prioridad %}</div>
+  <div class="tarjeta"><h2>Por categoría</h2>{% include "dashboard/_barras.html" with datos=por_categoria %}</div>
+  <div class="tarjeta"><h2>Por departamento</h2>{% include "dashboard/_barras.html" with datos=por_departamento %}</div>
+  <div class="tarjeta"><h2>Equipos con más tickets</h2>
+    {% for e in top_equipos %}<div class="barra-h"><div class="et" style="width:auto;flex:1">{{ e.equipo__codigo }} <span class="ayuda">{{ e.equipo__marca }} {{ e.equipo__modelo }}</span></div><div class="num">{{ e.n }}</div></div>
+    {% empty %}<p class="ayuda">Sin datos.</p>{% endfor %}</div>
+</div>
+
+<div class="tarjeta tabla-scroll"><h2>Carga por técnico</h2><table>
+<thead><tr><th>Técnico</th><th>Pendientes ahora</th><th>Resueltos en {{ dias }} días</th><th>Tiempo medio</th><th>Actividades</th><th>Horas registradas</th></tr></thead><tbody>
+{% for t in tecnicos %}<tr><td>{{ t.nombre }}</td><td>{{ t.abiertos }}</td><td>{{ t.resueltos }}</td><td>{% if t.tiempo_medio is None %}—{% else %}{{ t.tiempo_medio }} h{% endif %}</td><td>{{ t.actividades }}</td><td>{{ t.horas }} h</td></tr>{% endfor %}
+</tbody></table></div>
+
+<div class="rejilla c2">
+  <div class="tarjeta tabla-scroll"><h2>{% icono "alert-triangle" %} Tickets vencidos</h2>
+    {% if vencidos %}
+    <table class="compacta">
+      <thead><tr><th>Ticket</th><th>Asunto</th><th>Responsable</th><th>Vencido hace</th></tr></thead>
+      <tbody>
+      {% for t in vencidos %}<tr>
+        <td><a class="mono" href="{% url 'tickets:detalle' t.pk %}">{{ t.codigo }}</a></td>
+        <td>{{ t.titulo }}</td>
+        <td>{% if t.tecnico %}{{ t.tecnico.nombre_completo }}{% else %}<span class="aviso">Sin asignar</span>{% endif %}</td>
+        <td class="vencido" title="Venció el {{ t.fecha_limite|date:'d/m/Y H:i' }}">{{ t.fecha_limite|hace }}</td>
+      </tr>{% endfor %}
+      </tbody>
+    </table>
+    {% else %}<p class="ok">Ninguno {% icono "confetti" %}</p>{% endif %}
+  </div>
+  <div class="tarjeta tabla-scroll"><h2>Sin asignar</h2>
+    {% if sin_asignar %}
+    <table class="compacta">
+      <thead><tr><th>Ticket</th><th>Asunto</th><th>Solicitante</th><th>Prioridad</th></tr></thead>
+      <tbody>
+      {% for t in sin_asignar %}<tr>
+        <td><a class="mono" href="{% url 'tickets:detalle' t.pk %}">{{ t.codigo }}</a></td>
+        <td>{{ t.titulo }}</td>
+        <td>{{ t.solicitante.nombre_completo }}</td>
+        <td><span class="etiqueta {{ t.clase_prioridad }}">{{ t.get_prioridad_display }}</span></td>
+      </tr>{% endfor %}
+      </tbody>
+    </table>
+    {% else %}<p class="ok">Todo asignado</p>{% endif %}
+  </div>
+</div>
+<div class="tarjeta tabla-scroll"><h2>Últimas actividades de la bitácora</h2>
+  {% if ultimas_actividades %}
+  <table class="compacta">
+    <thead><tr><th>Fecha</th><th>Técnico</th><th>Tipo</th><th>Actividad</th><th class="num">Minutos</th></tr></thead>
+    <tbody>
+    {% for a in ultimas_actividades %}<tr>
+      <td class="mono">{{ a.fecha|date:"d/m/Y" }}</td>
+      <td>{{ a.tecnico.nombre_completo }}</td>
+      <td><span class="etiqueta">{{ a.get_tipo_display }}</span></td>
+      <td>{{ a.titulo }}</td>
+      <td class="num mono">{{ a.duracion_minutos }}</td>
+    </tr>{% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="ayuda">Sin actividades.</p>{% endif %}
+  <p><a href="{% url 'bitacora:lista' %}">Ver bitácora completa {% icono "arrow-right" %}</a></p>
+</div>
+{% endblock %}

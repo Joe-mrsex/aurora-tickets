@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block titulo %}Activar verificación en dos pasos · {{ nombre_sistema }}{% endblock %}
+{% block contenido %}
+<div class="login tarjeta con-aurora" style="max-width:560px">
+  {% include "aurora/grande.html" %}
+  <h1>Protege tu cuenta</h1>
+  <p class="subtitulo" style="text-align:center">Para usar el sistema necesitas activar la verificación en dos pasos. Solo se hace una vez.</p>
+  <ol>
+    <li>Instala en tu celular <strong>Microsoft Authenticator</strong> o <strong>Google Authenticator</strong> (gratis).</li>
+    <li>En la aplicación elige «Agregar cuenta» y <strong>escanea este código QR</strong>:</li>
+  </ol>
+  <div style="text-align:center;margin:12px 0"><div style="display:inline-block;background:#fff;padding:6px;border-radius:8px;line-height:0">{{ qr }}</div></div>
+  <p class="ayuda" style="text-align:center">Si no puedes escanear, escribe esta clave en la aplicación: <code>{{ secreto }}</code></p>
+  <ol start="3"><li>Escribe aquí el código de 6 dígitos que muestra la aplicación:</li></ol>
+  <form method="post">{% csrf_token %}
+    {% if error %}<div class="mensaje error">{{ error }}</div>{% endif %}
+    <label for="id_codigo">Código</label>
+    <input type="text" name="codigo" id="id_codigo" inputmode="numeric" autocomplete="one-time-code" required maxlength="10">
+    <div class="check"><label style="margin-top:14px"><input type="checkbox" name="recordar" value="1"> Recordar este equipo {{ dias }} días</label></div>
+    <input type="hidden" name="next" value="{{ next }}">
+    <button class="btn" type="submit">Activar</button>
+  </form>
+</div>
+{% endblock %}

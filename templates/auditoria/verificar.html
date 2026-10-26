@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load iconos %}
+{% block contenido %}
+<div class="tarjeta" style="max-width:760px"><h1>Verificación de integridad</h1>
+{% if problemas %}
+  <div class="mensaje error"><strong>¡Atención!</strong> Se encontraron {{ problemas|length }} problema(s) en {{ total }} registros:</div>
+  <ul>{% for p in problemas %}<li>{{ p }}</li>{% endfor %}</ul>
+{% else %}
+  <div class="mensaje success">{% icono "circle-check" %} Los {{ total }} registros de auditoría están íntegros: ninguno fue modificado ni eliminado.</div>
+{% endif %}
+<a class="btn secundario" href="{% url 'auditoria:lista' %}">{% icono "arrow-left" %} Volver</a></div>
+{% endblock %}

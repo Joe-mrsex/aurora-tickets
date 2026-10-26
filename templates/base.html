@@ -1,0 +1,62 @@
+{% load static iconos %}<!DOCTYPE html>
+<html lang="es" data-tema="{{ tema_actual }}"{% if cambio_tema %} data-cambio="1"{% endif %}>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}{{ nombre_sistema }}{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/fuentes.css' %}">
+  <link rel="stylesheet" href="{% static 'css/temas.css' %}">
+  <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+  <link rel="stylesheet" href="{% static 'css/transiciones.css' %}">
+  <link rel="stylesheet" href="{% static 'css/aurora.css' %}">
+  <link rel="icon" href="{% static 'img/aurora/favicon.ico' %}" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/aurora/favicon-32.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/aurora/favicon-16.png' %}">
+  <link rel="apple-touch-icon" href="{% static 'img/aurora/apple-touch-icon.png' %}">
+  <link rel="manifest" href="{% url 'manifiesto' %}">
+  <meta name="theme-color" content="#343a40">
+</head>
+<body>
+{% if sesion_completa %}
+<nav class="barra">
+<div class="barra-cuerpo">
+  <a class="marca" href="{% url 'inicio' %}" title="{{ nombre_sistema }}">{{ subtitulo_sistema }}</a>
+ <div class="barra-fila">
+  {% if es_ti %}<a class="enlace" href="{% url 'dashboard:panel' %}">{% icono "layout-dashboard" %} Panel</a>{% endif %}
+  <a class="enlace" href="{% url 'tickets:lista' %}">{% icono "list-details" %} {% if es_ti %}Tickets{% else %}Mis tickets{% endif %}</a>
+  <a class="enlace" href="{% url 'tickets:crear' %}">{% icono "plus" %} Nuevo ticket</a>
+  {% if es_ti %}
+    <a class="enlace" href="{% url 'bitacora:lista' %}">{% icono "notebook" %} Bitácora</a>
+    <a class="enlace" href="{% url 'tickets:equipos' %}">{% icono "device-laptop" %} Equipos</a>
+  {% endif %}
+  {% if es_jefe %}<a class="enlace" href="{% url 'auditoria:lista' %}">{% icono "shield-check" %} Auditoría</a>{% endif %}
+  {% if user.is_staff %}<a class="enlace" href="{% url 'admin:index' %}">{% icono "settings" %} Administración</a>{% endif %}
+ </div>
+  <div class="derecha">
+    <span>Hola, {{ user.nombre_completo }}{% if es_ti and user.cargo %} ({{ user.cargo }}){% endif %}</span>
+    <details class="tema-menu">
+      <summary title="Cambiar el tema visual">{% icono "palette" %} {{ tema_nombre }}</summary>
+      <form class="tema-lista" method="post" action="{% url 'accounts:tema' %}">{% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        {% for t in temas_disponibles %}
+        <button type="submit" name="tema" value="{{ t.clave }}" class="tema-op{% if t.clave == tema_actual %} activo{% endif %}">
+          <span class="muestra" style="background:{{ t.fondo }}"><i style="background:{{ t.primario }}"></i><i style="background:{{ t.acento }}"></i></span>
+          <span><strong>{{ t.nombre }}</strong><small>{{ t.descripcion }}</small></span>
+        </button>
+        {% endfor %}
+      </form>
+    </details>
+    <a class="salir" href="{% url 'accounts:cambiar_clave' %}" title="Cambiar mi contraseña">{% icono "lock" %} Contraseña</a>
+    <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button class="salir" type="submit">{% icono "logout" %} Salir</button></form>
+  </div>
+</div>
+{% include "aurora/mini.html" %}
+</nav>
+{% endif %}
+<main class="contenedor">
+  {% for m in messages %}<div class="mensaje {{ m.tags }}">{{ m }}</div>{% endfor %}
+  {% block contenido %}{% endblock %}
+</main>
+<footer class="pie">{{ nombre_sistema }} · {{ subtitulo_sistema }}{% if version_sistema %} · v{{ version_sistema }}{% endif %} · tema {{ tema_nombre }}</footer>
+</body>
+</html>

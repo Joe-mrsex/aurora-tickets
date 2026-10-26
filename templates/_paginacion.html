@@ -1,0 +1,8 @@
+{% load iconos %}
+{% if pagina.paginator.num_pages > 1 %}
+<div class="pagina">
+  {% if pagina.has_previous %}<a class="btn chico secundario" href="?{{ consulta }}&page={{ pagina.previous_page_number }}">{% icono "arrow-left" %} Anterior</a>{% endif %}
+  <span>Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+  {% if pagina.has_next %}<a class="btn chico secundario" href="?{{ consulta }}&page={{ pagina.next_page_number }}">Siguiente {% icono "arrow-right" %}</a>{% endif %}
+</div>
+{% endif %}

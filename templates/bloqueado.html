@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block titulo %}Acceso bloqueado · {{ nombre_sistema }}{% endblock %}
+{% block contenido %}
+<div class="login tarjeta con-aurora">
+  {% include "aurora/grande.html" %}
+  <h1>Acceso bloqueado temporalmente</h1>
+  <div class="mensaje error">Se superó el número de intentos de inicio de sesión permitidos.</div>
+  <p class="subtitulo" style="text-align:center">Espera 15 minutos e inténtalo de nuevo. Si necesitas ayuda, contacta al área de TICS.</p>
+</div>
+{% endblock %}

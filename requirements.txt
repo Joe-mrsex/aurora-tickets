@@ -1,0 +1,11 @@
+# Dependencias del Sistema de Tickets TICS  (instalar con: pip install -r requirements.txt)
+Django==6.1.1        # framework web
+openpyxl==3.1.5      # genera la matriz de auditoría en Excel
+waitress==3.0.2      # servidor de producción para Windows
+whitenoise==6.12.0   # sirve el CSS/estáticos en producción
+django-axes==8.3.1   # límite de intentos de inicio de sesión (anti fuerza bruta)
+segno==1.6.6         # dibuja el QR del segundo factor (pura de Python, sin dependencias)
+cryptography==50.0.2  # cifra los secretos del segundo factor en la base de datos
+cffi==2.1.1          # (la usa cryptography)
+pycparser==3.12      # (la usa cffi)
+psycopg[binary]==3.3.6  # conector de Django a PostgreSQL

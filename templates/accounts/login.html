@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block titulo %}Ingresar · {{ nombre_sistema }}{% endblock %}
+{% block contenido %}
+<div class="login tarjeta con-aurora">
+  {% include "aurora/grande.html" %}
+  <h1>{{ nombre_sistema }}</h1>
+  <p class="subtitulo" style="text-align:center">{{ subtitulo_sistema }} · ingresa con tu usuario y contraseña</p>
+  <form method="post">{% csrf_token %}
+    {% if form.errors %}<div class="mensaje error">Usuario o contraseña incorrectos. Si no la recuerdas, pide a TI que la restablezca.</div>{% endif %}
+    <label for="id_username">Usuario</label>
+    <input type="text" name="username" id="id_username" autofocus autocomplete="username" required>
+    <label for="id_password">Contraseña</label>
+    <input type="password" name="password" id="id_password" autocomplete="current-password" required>
+    <input type="hidden" name="next" value="{{ next }}">
+    <button class="btn" type="submit">Ingresar</button>
+  </form>
+</div>
+{% endblock %}

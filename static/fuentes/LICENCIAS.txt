@@ -1,0 +1,6 @@
+Avisos de licencia de componentes incluidos
+
+Fuentes (SIL Open Font License 1.1, https://openfontlicense.org): IBM Plex Sans e IBM Plex Mono (IBM Corp.), Space Grotesk, JetBrains Mono, Chakra Petch,
+Inter y Fraunces (cada una, por los autores de su proyecto). Estas fuentes se pueden usar y redistribuir libremente con este software; no se venden por separado.
+
+Iconos de linea (MIT, https://tabler.io/icons): Tabler Icons, Pawel Kuna.

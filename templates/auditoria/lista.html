@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block titulo %}Auditoría · {{ nombre_sistema }}{% endblock %}
+{% block contenido %}
+<div class="cabecera"><div><h1>Matriz de auditoría</h1>
+<p class="subtitulo">{{ pagina.paginator.count }} evento(s). Aquí quedan los eventos importantes (tickets, equipos, usuarios, eliminaciones). No se pueden modificar; solo se pueden depurar los antiguos.</p></div>
+<div>
+  <a class="btn secundario" href="{% url 'auditoria:verificar' %}">Verificar integridad</a>
+  <a class="btn rojo" href="{% url 'auditoria:depurar' %}">Depurar registros antiguos</a>
+</div></div>
+<form class="tarjeta filtros" method="get">
+  <div style="flex:1;min-width:200px"><label>Buscar</label><input type="search" name="q" value="{{ filtros.q }}" placeholder="Usuario, ticket, detalle..."></div>
+  <div><label>Módulo</label><select name="modulo"><option value="">Todos</option>{% for v, n in modulos %}<option value="{{ v }}" {% if filtros.modulo == v %}selected{% endif %}>{{ n }}</option>{% endfor %}</select></div>
+  <div><label>Desde</label><input type="date" name="desde" value="{{ filtros.desde|date:'Y-m-d' }}"></div>
+  <div><label>Hasta</label><input type="date" name="hasta" value="{{ filtros.hasta|date:'Y-m-d' }}"></div>
+  <div><button class="btn" type="submit">Filtrar</button> <a class="btn secundario" href="?">Limpiar</a></div>
+</form>
+<div class="tarjeta tabla-scroll"><table>
+<thead><tr><th>N°</th><th>Fecha y hora</th><th>Usuario</th><th>Módulo</th><th>Acción</th><th>Referencia</th><th>Detalle</th><th>IP</th></tr></thead><tbody>
+{% for r in pagina %}<tr>
+<td>{{ r.id }}</td><td style="white-space:nowrap">{{ r.fecha|date:"d/m/Y H:i:s" }}</td>
+<td>{{ r.usuario_nombre }}<div class="ayuda">{{ r.usuario_rol }}</div></td><td>{{ r.get_modulo_display }}</td><td>{{ r.accion }}</td><td>{{ r.referencia }}</td><td>{{ r.detalle|truncatechars:220 }}</td><td>{{ r.ip|default:"" }}</td></tr>
+{% empty %}<tr><td colspan="8" class="ayuda" style="text-align:center;padding:30px">Sin eventos.</td></tr>{% endfor %}
+</tbody></table>{% include "_paginacion.html" %}</div>
+{% endblock %}

@@ -1,0 +1,100 @@
+/* Aurora, la mascota del sistema. Todo con CSS puro (sin JavaScript): hojas de cuadros (sprites) que se reproducen con steps().
+   Cada pixel del dibujo mide --t pixeles de pantalla. */
+
+/* ---------------------------------------------------------------- común */
+.aurora, .aurora-mini { pointer-events: none; }
+.aurora i, .aurora-mini i { position: absolute; inset: 0; background-repeat: no-repeat; image-rendering: pixelated; }
+
+/* ---------------------------------------------------------------- grande: brinca sobre la tarjeta de ingreso (cuadros de 72 x 98 px del dibujo) */
+.login.tarjeta { position: relative; }
+.login.con-aurora { margin-top: max(5vh, 240px); }
+.aurora { --t: 2; position: absolute; z-index: 5; width: calc(72px * var(--t)); height: calc(98px * var(--t)); }
+.aurora-grande { left: 50%; top: calc(-98px * var(--t) + 1px); margin-left: calc(-36px * var(--t)); }
+
+/* ciclo de 7,5 s: tres brincos (4,5 s) y luego 3 s de descanso respirando, que es cuando piensa en una nube */
+.aurora-salto  { background-image: url("../img/aurora/salto.png");  background-size: calc(72px * 45 * var(--t)) calc(98px * var(--t));
+                 animation: aurora-cuadros-salto 1.5s steps(45) infinite, aurora-arco 1.5s linear infinite, aurora-activo 7.5s linear infinite; }
+.aurora-reposo { background-image: url("../img/aurora/reposo.png"); background-size: calc(72px * 30 * var(--t)) calc(98px * var(--t)); opacity: 0;
+                 animation: aurora-cuadros-reposo 1s steps(30) infinite, aurora-inactivo 7.5s linear infinite; }
+@keyframes aurora-cuadros-salto  { to { background-position: calc(-72px * 45 * var(--t)) 0; } }
+@keyframes aurora-cuadros-reposo { to { background-position: calc(-72px * 30 * var(--t)) 0; } }
+/* el recorrido hacia arriba y abajo va aparte (a 60 fps): despega en el cuadro 10 y aterriza en el 25 */
+@keyframes aurora-arco {
+  0%, 21%   { transform: translateY(0); animation-timing-function: cubic-bezier(.2, .7, .4, 1); }
+  40%       { transform: translateY(calc(-34px * var(--t))); animation-timing-function: cubic-bezier(.6, 0, .8, .4); }
+  56%, 100% { transform: translateY(0); }
+}
+@keyframes aurora-activo   { 0%, 59.9% { opacity: 1; } 60%, 100% { opacity: 0; } }
+@keyframes aurora-inactivo { 0%, 59.9% { opacity: 0; } 60%, 100% { opacity: 1; } }
+
+/* ---------------------------------------------------------------- nubes de pensamiento: 6 distintas, el dibujo de adentro alterna 4 cuadros */
+.aurora-nube { --tb: calc(var(--t) * 2); position: absolute; width: calc(16px * var(--tb)); height: calc(16px * var(--tb)); opacity: 0; transform-origin: 10% 100%;
+               background: url("../img/aurora/nubes.png") 0 calc(var(--fila) * -16px * var(--tb)) no-repeat; background-size: calc(64px * var(--tb)) calc(96px * var(--tb));
+               image-rendering: pixelated; animation: aurora-tiembla .67s steps(4) infinite, aurora-turno 45s linear infinite;
+               animation-delay: 0s, calc(4.7s + var(--n) * 7.5s); }
+.aurora-grande .aurora-nube { left: calc(52px * var(--t)); top: calc(-2px * var(--t)); }
+@keyframes aurora-tiembla { to { background-position-x: calc(-64px * var(--tb)); } }
+@keyframes aurora-turno {
+  0%    { opacity: 0; transform: scale(.2); }
+  .5%   { opacity: 1; transform: scale(1.18); }
+  1.1%  { opacity: 1; transform: scale(1); }
+  5.4%  { opacity: 1; transform: scale(1); }
+  5.9%  { opacity: 1; transform: scale(1.12); }
+  6.6%  { opacity: 0; transform: scale(.2); }
+  100%  { opacity: 0; transform: scale(.2); }
+}
+
+/* ---------------------------------------------------------------- pequeña, en la barra: camina de lado por el espacio libre de la derecha y en cuatro paradas (centro, extremo derecho, centro, extremo izquierdo)
+   se voltea a mirar, saluda y piensa una nube; luego sigue caminando. Todo el recorrido dura 42.8 s (si se cambia aquí, también CICLO_AURORA en accounts/context_processors.py).
+   Con --fase, que pone el servidor según su reloj, cada página arranca la animación donde iba y no desde el principio. */
+.barra { min-height: 100px; }
+.aurora-pista { flex: 1 1 0; min-width: 0; position: relative; margin-left: 12px; container-type: inline-size; overflow: hidden; pointer-events: none; }
+.aurora-mini { --t: 2; position: absolute; left: 0; bottom: 0; z-index: 30; width: calc(36px * var(--t)); height: calc(49px * var(--t)); animation: aurora-paseo 42.8s linear infinite; animation-delay: var(--fase, 0s); }
+@container (max-width: 130px) { .aurora-mini { display: none; } }
+.aurora-mini i { background-size: calc(36px * 30 * var(--t)) calc(49px * var(--t)); }
+.aurora-mini .aurora-paso-der, .aurora-mini .aurora-paso-izq { background-size: calc(36px * 4 * var(--t)) calc(49px * var(--t)); }
+.aurora-paso-der { background-image: url("../img/aurora/paso_der.png"); animation: aurora-cuadros-paso .5s steps(4) infinite, aurora-v-der 42.8s linear infinite; animation-delay: 0s, var(--fase, 0s); }
+.aurora-paso-izq { background-image: url("../img/aurora/paso_izq.png"); opacity: 0; animation: aurora-cuadros-paso .5s steps(4) infinite, aurora-v-izq 42.8s linear infinite; animation-delay: 0s, var(--fase, 0s); }
+.aurora-saluda   { background-image: url("../img/aurora/mini_saluda.png");  opacity: 0; animation: aurora-cuadros-mini 1s steps(30) infinite, aurora-v-saluda 42.8s linear infinite; animation-delay: 0s, var(--fase, 0s); }
+.aurora-respira  { background-image: url("../img/aurora/mini_respira.png"); opacity: 0; animation: aurora-cuadros-mini 1s steps(30) infinite, aurora-v-respira 42.8s linear infinite; animation-delay: 0s, var(--fase, 0s); }
+@keyframes aurora-cuadros-mini { to { background-position-x: calc(-36px * 30 * var(--t)); } }
+@keyframes aurora-cuadros-paso { to { background-position-x: calc(-36px * 4 * var(--t)); } }
+@keyframes aurora-paseo { 0% { left: 0; } 8.178% { left: calc((100% - 36px * var(--t)) / 2); } 25% { left: calc((100% - 36px * var(--t)) / 2); } 33.178% { left: calc(100% - 36px * var(--t)); } 50% { left: calc(100% - 36px * var(--t)); } 58.178% { left: calc((100% - 36px * var(--t)) / 2); } 75% { left: calc((100% - 36px * var(--t)) / 2); } 83.178% { left: 0; } 100% { left: 0; } }
+@keyframes aurora-v-der { 0%, 8.177% { opacity: 1; } 8.178%, 24.999% { opacity: 0; } 25%, 33.177% { opacity: 1; } 33.178%, 100% { opacity: 0; } }
+@keyframes aurora-v-izq { 0%, 49.999% { opacity: 0; } 50%, 58.177% { opacity: 1; } 58.178%, 74.999% { opacity: 0; } 75%, 83.177% { opacity: 1; } 83.178%, 100% { opacity: 0; } }
+@keyframes aurora-v-saluda { 0%, 10.046% { opacity: 0; } 10.047%, 15.653% { opacity: 1; } 15.654%, 35.046% { opacity: 0; } 35.047%, 40.653% { opacity: 1; } 40.654%, 60.046% { opacity: 0; } 60.047%, 65.653% { opacity: 1; } 65.654%, 85.046% { opacity: 0; } 85.047%, 90.653% { opacity: 1; } 90.654%, 100% { opacity: 0; } }
+@keyframes aurora-v-respira { 0%, 8.177% { opacity: 0; } 8.178%, 10.046% { opacity: 1; } 10.047%, 15.653% { opacity: 0; } 15.654%, 24.999% { opacity: 1; } 25%, 33.177% { opacity: 0; } 33.178%, 35.046% { opacity: 1; } 35.047%, 40.653% { opacity: 0; } 40.654%, 49.999% { opacity: 1; } 50%, 58.177% { opacity: 0; } 58.178%, 60.046% { opacity: 1; } 60.047%, 65.653% { opacity: 0; } 65.654%, 74.999% { opacity: 1; } 75%, 83.177% { opacity: 0; } 83.178%, 85.046% { opacity: 1; } 85.047%, 90.653% { opacity: 0; } 90.654%, 100% { opacity: 1; } }
+
+/* doce nubes (tres vueltas de cuatro paradas, seis dibujos): cada una sale una vez cada 128.4 s, justo cuando termina de saludar */
+.aurora-mini .aurora-nube { --tb: 3; top: 0; background-image: url("../img/aurora/nubes_izq.png"); left: -52px; transform-origin: 90% 100%;
+                            animation: aurora-tiembla .67s steps(4) infinite, aurora-turno-mini 128.4s linear infinite; }
+.aurora-mini span.aurora-nube:nth-of-type(4n+3), .aurora-mini span.aurora-nube:nth-of-type(4n+4) { background-image: url("../img/aurora/nubes.png"); left: calc(36px * var(--t) - 6px); transform-origin: 10% 100%; }
+.aurora-mini span.aurora-nube:nth-of-type(1) { animation-delay: 0s, calc(var(--fase, 0s) + 6.7s); }
+.aurora-mini span.aurora-nube:nth-of-type(2) { animation-delay: 0s, calc(var(--fase, 0s) + 17.4s); }
+.aurora-mini span.aurora-nube:nth-of-type(3) { animation-delay: 0s, calc(var(--fase, 0s) + 28.1s); }
+.aurora-mini span.aurora-nube:nth-of-type(4) { animation-delay: 0s, calc(var(--fase, 0s) + 38.8s); }
+.aurora-mini span.aurora-nube:nth-of-type(5) { animation-delay: 0s, calc(var(--fase, 0s) + 49.5s); }
+.aurora-mini span.aurora-nube:nth-of-type(6) { animation-delay: 0s, calc(var(--fase, 0s) + 60.2s); }
+.aurora-mini span.aurora-nube:nth-of-type(7) { animation-delay: 0s, calc(var(--fase, 0s) + 70.9s); }
+.aurora-mini span.aurora-nube:nth-of-type(8) { animation-delay: 0s, calc(var(--fase, 0s) + 81.6s); }
+.aurora-mini span.aurora-nube:nth-of-type(9) { animation-delay: 0s, calc(var(--fase, 0s) + 92.3s); }
+.aurora-mini span.aurora-nube:nth-of-type(10) { animation-delay: 0s, calc(var(--fase, 0s) + 103s); }
+.aurora-mini span.aurora-nube:nth-of-type(11) { animation-delay: 0s, calc(var(--fase, 0s) + 113.7s); }
+.aurora-mini span.aurora-nube:nth-of-type(12) { animation-delay: 0s, calc(var(--fase, 0s) + 124.4s); }
+@keyframes aurora-turno-mini {
+  0%    { opacity: 0; transform: scale(.2); }
+  .3%   { opacity: 1; transform: scale(1.18); }
+  .6%   { opacity: 1; transform: scale(1); }
+  2.2%  { opacity: 1; transform: scale(1); }
+  2.5%  { opacity: 1; transform: scale(1.12); }
+  2.88% { opacity: 0; transform: scale(.2); }
+  100%  { opacity: 0; transform: scale(.2); }
+}
+
+/* ---------------------------------------------------------------- pantallas chicas y accesibilidad */
+@media (max-width: 700px)  { .aurora { --t: 1; } .login.con-aurora { margin-top: max(5vh, 130px); } }
+@media (prefers-reduced-motion: reduce) {
+  .aurora-salto, .aurora-reposo, .aurora-saluda, .aurora-respira, .aurora-paso-der, .aurora-paso-izq, .aurora-nube, .aurora-mini { animation: none; }
+  .aurora-salto, .aurora-saluda, .aurora-paso-der, .aurora-paso-izq { opacity: 0; }
+  .aurora-reposo, .aurora-respira { opacity: 1; }
+}

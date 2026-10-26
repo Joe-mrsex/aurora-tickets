@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block titulo %}Códigos de recuperación · {{ nombre_sistema }}{% endblock %}
+{% block contenido %}
+<div class="login tarjeta con-aurora" style="max-width:520px">
+  {% include "aurora/grande.html" %}
+  <h1>Guarda tus códigos de recuperación</h1>
+  <p>La verificación en dos pasos quedó activada. Si algún día pierdes el celular, cada uno de estos códigos te deja entrar <strong>una sola vez</strong>.</p>
+  <p class="mensaje aviso">Anótalos ahora en un lugar seguro (papel o gestor de contraseñas). <strong>No se volverán a mostrar.</strong></p>
+  <pre class="texto" style="font-size:1.2em;line-height:1.8;text-align:center">{% for c in codigos %}{{ c }}
+{% endfor %}</pre>
+  <a class="btn" href="{{ next }}">Ya los guardé, continuar</a>
+</div>
+{% endblock %}

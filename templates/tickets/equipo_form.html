@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load iconos %}
+{% block titulo %}Equipo · {{ nombre_sistema }}{% endblock %}
+{% block contenido %}
+<div class="rejilla c2">
+<div class="tarjeta"><h1>{% if equipo %}Editar {{ equipo.codigo }}{% else %}Nuevo equipo{% endif %}</h1>
+<form method="post">{% csrf_token %}{% include "_campos.html" %}
+<p style="margin-top:16px"><button class="btn" type="submit">Guardar</button> <a class="btn secundario" href="{% url 'tickets:equipos' %}">Cancelar</a>
+{% if equipo and es_jefe %}<a class="btn rojo" style="float:right" href="{% url 'tickets:equipo_eliminar' equipo.pk %}">Eliminar</a>{% endif %}</p></form></div>
+{% if equipo %}<div class="tarjeta"><h2>Historial de tickets de este equipo</h2>
+{% for t in historial %}<div><span class="punto"></span><a href="{% url 'tickets:detalle' t.pk %}">{{ t.codigo }}</a> {{ t.titulo }} <span class="etiqueta {{ t.clase_estado }}">{{ t.get_estado_display }}</span> <span class="ayuda">{{ t.creado|date:"d/m/Y" }}</span></div>
+{% empty %}<p class="ayuda">Sin tickets todavía.</p>{% endfor %}</div>{% endif %}
+</div>
+{% endblock %}

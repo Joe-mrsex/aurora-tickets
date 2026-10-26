@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load iconos %}
+{% block titulo %}Tickets · {{ nombre_sistema }}{% endblock %}
+{% block contenido %}
+<div class="cabecera">
+  <div><h1>{% if es_ti %}Tickets{% else %}Mis tickets{% endif %}</h1>
+  <p class="subtitulo">{{ pagina.paginator.count }} resultado(s)</p></div>
+  <a class="btn" href="{% url 'tickets:crear' %}">+ Nuevo ticket</a>
+</div>
+
+{% if es_ti %}
+<p>
+  <a class="btn chico {% if vista == '' %}primario{% else %}secundario{% endif %}" href="?">Todos</a>
+  <a class="btn chico {% if vista == 'abiertos' %}primario{% else %}secundario{% endif %}" href="?vista=abiertos">Abiertos</a>
+  <a class="btn chico {% if vista == 'mios' %}primario{% else %}secundario{% endif %}" href="?vista=mios">Míos</a>
+  <a class="btn chico {% if vista == 'sin_asignar' %}primario{% else %}secundario{% endif %}" href="?vista=sin_asignar">Sin asignar</a>
+  <a class="btn chico {% if vista == 'vencidos' %}primario{% else %}secundario{% endif %}" href="?vista=vencidos" title="Tickets cuyo plazo se pasó, estén abiertos o ya resueltos">Vencidos (SLA)</a>
+  {% if es_ti %}<a class="btn chico {% if vista == 'reprogramados' %}primario{% else %}secundario{% endif %}" href="?vista=reprogramados">Reprogramados</a>{% endif %}
+</p>
+{% endif %}
+
+<form class="tarjeta filtros" method="get">
+  <input type="hidden" name="vista" value="{{ vista }}">
+  <div style="flex:1;min-width:200px"><label>Buscar</label><input type="search" name="q" value="{{ q }}" placeholder="Asunto, TI-00012, nombre..."></div>
+  <div><label>Estado</label><select name="estado"><option value="">Todos</option>
+    {% for v, n in estados %}<option value="{{ v }}" {% if filtro.estado == v %}selected{% endif %}>{{ n }}</option>{% endfor %}</select></div>
+  <div><label>Prioridad</label><select name="prioridad"><option value="">Todas</option>
+    {% for v, n in prioridades %}<option value="{{ v }}" {% if filtro.prioridad == v %}selected{% endif %}>{{ n }}</option>{% endfor %}</select></div>
+  <div><label>Categoría</label><select name="categoria"><option value="">Todas</option>
+    {% for c in categorias %}<option value="{{ c.id }}" {% if filtro.categoria == c.id|stringformat:"s" %}selected{% endif %}>{{ c.nombre }}</option>{% endfor %}</select></div>
+  {% if es_ti %}<div><label>Técnico</label><select name="tecnico"><option value="">Todos</option>
+    {% for t in tecnicos %}<option value="{{ t.id }}" {% if filtro.tecnico == t.id|stringformat:"s" %}selected{% endif %}>{{ t.nombre_completo }}</option>{% endfor %}</select></div>{% endif %}
+  <div><button class="btn" type="submit">Filtrar</button> <a class="btn secundario" href="?">Limpiar</a></div>
+</form>
+
+<div class="tarjeta tabla-scroll">
+<table>
+  <thead><tr><th>Ticket</th><th>Asunto</th>{% if es_ti %}<th>Solicitante</th>{% endif %}<th>Categoría</th><th>Prioridad</th><th>Estado</th><th>Técnico</th><th>Creado</th><th>SLA</th></tr></thead>
+  <tbody>
+  {% for t in pagina %}
+    <tr>
+      <td><a href="{% url 'tickets:detalle' t.pk %}"><strong>{{ t.codigo }}</strong></a></td>
+      <td><a href="{% url 'tickets:detalle' t.pk %}">{{ t.titulo }}</a></td>
+      {% if es_ti %}<td>{{ t.solicitante.nombre_completo }}<br><span class="ayuda">{{ t.solicitante.departamento }}</span></td>{% endif %}
+      <td>{{ t.categoria }}</td>
+      <td><span class="etiqueta {{ t.clase_prioridad }}">{{ t.get_prioridad_display }}</span></td>
+      <td><span class="etiqueta {{ t.clase_estado }}">{{ t.get_estado_display }}</span></td>
+      <td>{{ t.tecnico.nombre_completo|default:"—" }}</td>
+      <td>{{ t.creado|date:"d/m/Y H:i" }}</td>
+      <td>{% if t.en_pausa %}<span class="aviso" title="SLA en pausa hasta el {{ t.reprogramado_para|date:'d/m/Y' }}">{% icono "calendar-event" %} {{ t.reprogramado_para|date:"d/m" }}</span>{% elif t.esta_vencido %}<span class="vencido">Vencido</span>{% elif t.esta_abierto %}{{ t.fecha_limite|date:"d/m H:i" }}{% elif t.cumplio_sla is True %}<span class="ok" title="Resuelto el {{ t.fecha_resolucion|date:'d/m/Y H:i' }}; vencía el {{ t.fecha_limite|date:'d/m/Y H:i' }}">A tiempo</span>{% elif t.cumplio_sla is False %}<span class="vencido" title="Se resolvió el {{ t.fecha_resolucion|date:'d/m/Y H:i' }}, después de su plazo ({{ t.fecha_limite|date:'d/m/Y H:i' }})">{% icono "alert-triangle" %} Vencido</span> <span class="ayuda">(resuelto)</span>{% else %}—{% endif %}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="9" class="ayuda" style="text-align:center;padding:30px">No hay tickets con esos filtros.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% include "_paginacion.html" %}
+</div>
+{% endblock %}

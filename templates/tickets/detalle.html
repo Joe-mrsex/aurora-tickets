@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% load iconos %}
+{% block titulo %}{{ ticket.codigo }} · {{ nombre_sistema }}{% endblock %}
+{% block contenido %}
+<div class="cabecera">
+  <div>
+    <h1>{{ ticket.codigo }} · {{ ticket.titulo }}</h1>
+    <span class="etiqueta {{ ticket.clase_estado }}">{{ ticket.get_estado_display }}</span>
+    <span class="etiqueta {{ ticket.clase_prioridad }}">{{ ticket.get_prioridad_display }}</span>
+    {% if ticket.esta_vencido %}<span class="vencido">{% icono "alert-triangle" %} SLA vencido</span>{% endif %}
+    {% if ticket.en_pausa %}<span class="aviso">{% icono "calendar-event" %} Reprogramado para el {{ ticket.reprogramado_para|date:"d/m/Y" }} · SLA en pausa</span>{% endif %}
+  </div>
+  <a class="btn secundario" href="{% url 'tickets:lista' %}">{% icono "arrow-left" %} Volver</a>
+</div>
+
+<div class="detalle-grid">
+<div>
+  <div class="tarjeta">
+    <h2>Descripción</h2>
+    <pre class="texto">{{ ticket.descripcion }}</pre>
+    {% if adjuntos %}
+      <div class="acciones-caja"><h3>Adjuntos</h3>
+      {% for a in adjuntos %}<div>{% icono "paperclip" %} <a href="{% url 'tickets:adjunto' a.pk %}">{{ a.nombre_original }}</a> <span class="ayuda">— {{ a.subido_por.nombre_completo }}, {{ a.creado|date:"d/m/Y H:i" }}</span></div>{% endfor %}</div>
+    {% endif %}
+  </div>
+
+  {% if ticket.solucion %}
+  <div class="tarjeta" style="border-left:5px solid var(--ok)">
+    <h2>Solución aplicada</h2><pre class="texto">{{ ticket.solucion }}</pre>
+    {% if es_solicitante and ticket.estado == 'RESUELTO' %}
+      <div class="acciones-caja">
+        <p><strong>¿Quedó resuelto tu problema?</strong></p>
+        <form method="post" style="display:inline">{% csrf_token %}<input type="hidden" name="accion" value="cerrar"><button class="btn verde" type="submit">Sí, cerrar ticket</button></form>
+        <details style="margin-top:10px"><summary style="cursor:pointer">No, sigue el problema</summary>
+          <form method="post">{% csrf_token %}<input type="hidden" name="accion" value="reabrir">{{ form_motivo.as_p }}<button class="btn rojo" type="submit">Reabrir ticket</button></form>
+        </details>
+      </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div class="tarjeta">
+    <h2>Conversación</h2>
+    {% for c in comentarios %}
+      <div class="comentario {% if c.interno %}interno{% endif %}">
+        <div class="quien"><strong>{{ c.autor.nombre_completo }}</strong>{% if c.autor.es_tecnico %} (TI){% endif %} · {{ c.creado|date:"d/m/Y H:i" }}{% if c.interno %} · {% icono "lock" %} nota interna{% endif %}</div>
+        <pre class="texto">{{ c.texto }}</pre>
+      </div>
+    {% empty %}<p class="ayuda">Aún no hay comentarios.</p>{% endfor %}
+    {% if ticket.estado != 'CERRADO' and ticket.estado != 'CANCELADO' %}
+    <form method="post" enctype="multipart/form-data">{% csrf_token %}
+      <input type="hidden" name="accion" value="comentar">
+      {% include "_campos.html" with form=form_comentario %}
+      <p><button class="btn" type="submit">Enviar comentario</button></p>
+    </form>
+    {% endif %}
+  </div>
+
+  <div class="tarjeta">
+    <h2>Historial del ticket</h2>
+    <div class="linea">
+    {% for h in historial %}
+      <div class="ev"><strong>{{ h.accion }}</strong> <span class="cuando">· {{ h.fecha|date:"d/m/Y H:i" }} · {{ h.usuario.nombre_completo|default:"Sistema" }}</span>
+        <div>{{ h.detalle }}</div></div>
+    {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="tarjeta">
+    <h2>Datos</h2>
+    <dl class="datos">
+      <dt>Solicitante</dt><dd>{{ ticket.solicitante.nombre_completo }}<br><span class="ayuda">{{ ticket.solicitante.departamento }}</span></dd>
+      <dt>Técnico</dt><dd>{{ ticket.tecnico.nombre_completo|default:"Sin asignar" }}</dd>
+      <dt>Categoría</dt><dd>{{ ticket.categoria }}</dd>
+      <dt>Equipo</dt><dd>{% if ticket.equipo %}{% if es_ti %}<a href="{% url 'tickets:equipo_editar' ticket.equipo.pk %}">{{ ticket.equipo }}</a>{% else %}{{ ticket.equipo }}{% endif %}{% else %}—{% endif %}</dd>
+      <dt>Creado</dt><dd>{{ ticket.creado|date:"d/m/Y H:i" }}</dd>
+      {% if ticket.en_pausa %}<dt>Vence (SLA)</dt><dd><span class="aviso">En pausa</span> hasta el {{ ticket.reprogramado_para|date:"d/m/Y" }}<br>{% if ticket.horas_restantes >= 0 %}<span class="ayuda">Al reanudar le quedarán {{ ticket.horas_restantes|floatformat:1 }} h</span>{% else %}<span class="ayuda">Ya estaba vencido al pausarlo: seguirá vencido al reanudar</span>{% endif %}</dd>
+      {% else %}<dt>Vence (SLA)</dt><dd>{{ ticket.fecha_limite|date:"d/m/Y H:i" }}</dd>{% endif %}
+      {% if ticket.reprogramaciones %}<dt>Reprogramado</dt><dd>{{ ticket.reprogramaciones }} vez{{ ticket.reprogramaciones|pluralize:"es" }}</dd>{% endif %}
+      {% if ticket.fecha_primera_atencion %}<dt>1ª atención</dt><dd>{{ ticket.fecha_primera_atencion|date:"d/m/Y H:i" }}</dd>{% endif %}
+      {% if ticket.fecha_resolucion %}<dt>Resuelto</dt><dd>{{ ticket.fecha_resolucion|date:"d/m/Y H:i" }} — {% if ticket.cumplio_sla %}<span class="ok">dentro del SLA</span>{% else %}<span class="vencido">fuera del SLA</span>{% endif %}</dd>{% endif %}
+      {% if ticket.fecha_cierre %}<dt>Cerrado</dt><dd>{{ ticket.fecha_cierre|date:"d/m/Y H:i" }}</dd>{% endif %}
+    </dl>
+  </div>
+
+  {% if es_ti %}
+  <div class="tarjeta">
+    <h2>Acciones de TI</h2>
+    {% if puede_tomar %}
+      <form method="post">{% csrf_token %}<input type="hidden" name="accion" value="tomar"><button class="btn verde" type="submit">{% icono "player-play" %} Tomar y atender</button></form>
+    {% endif %}
+    {% if ticket.esta_abierto %}
+    <div class="acciones-caja"><form method="post">{% csrf_token %}<input type="hidden" name="accion" value="asignar">
+      {{ form_asignar.tecnico.label_tag }}{{ form_asignar.tecnico }}<p><button class="btn chico" type="submit">Asignar</button></p></form></div>
+    {% endif %}
+    {% if opciones_estado %}
+    <div class="acciones-caja"><form method="post">{% csrf_token %}<input type="hidden" name="accion" value="estado">
+      {{ form_estado.estado.label_tag }}{{ form_estado.estado }}{{ form_estado.nota.label_tag }}{{ form_estado.nota }}
+      <p><button class="btn chico" type="submit">Cambiar estado</button></p></form></div>
+    {% endif %}
+    {% if ticket.esta_abierto %}
+    <div class="acciones-caja"><form method="post">{% csrf_token %}<input type="hidden" name="accion" value="reprogramar">
+      <h3>{% icono "calendar-event" %} Reprogramar</h3>
+      <p class="ayuda">Pospone la atención para otro día. El plazo (SLA) queda en pausa hasta esa fecha y se avisa al solicitante.</p>
+      {% include "_campos.html" with form=form_reprogramar %}
+      <p><button class="btn chico secundario" type="submit">Reprogramar</button></p></form>
+      {% if ticket.en_pausa %}<form method="post">{% csrf_token %}<input type="hidden" name="accion" value="retomar"><button class="btn chico verde" type="submit">{% icono "player-play" %} Retomar ahora</button></form>{% endif %}
+    </div>
+    {% endif %}
+    {% if puede_resolver %}
+    <div class="acciones-caja"><form method="post">{% csrf_token %}<input type="hidden" name="accion" value="resolver">
+      <h3>Resolver ticket</h3>{% include "_campos.html" with form=form_resolver %}
+      <p><button class="btn verde chico" type="submit">{% icono "check" %} Marcar como resuelto</button></p></form></div>
+    {% endif %}
+    {% if ticket.esta_abierto %}
+    <div class="acciones-caja"><form method="post">{% csrf_token %}<input type="hidden" name="accion" value="prioridad">
+      {{ form_prioridad.prioridad.label_tag }}{{ form_prioridad.prioridad }}
+      <p><button class="btn chico secundario" type="submit">Cambiar prioridad</button></p></form></div>
+    {% endif %}
+    {% if ticket.estado == 'RESUELTO' %}
+    <div class="acciones-caja"><form method="post">{% csrf_token %}<input type="hidden" name="accion" value="cerrar"><button class="btn chico" type="submit">Cerrar ticket</button></form></div>
+    {% endif %}
+  </div>
+  {% if actividades %}
+  <div class="tarjeta"><h2>Actividades enlazadas</h2>
+    {% for a in actividades %}<div><span class="punto"></span>{{ a.fecha|date:"d/m/Y" }} — {{ a.tecnico.nombre_completo }} ({{ a.duracion_minutos }} min)</div>{% endfor %}</div>
+  {% endif %}
+  {% endif %}
+</div>
+</div>
+{% endblock %}

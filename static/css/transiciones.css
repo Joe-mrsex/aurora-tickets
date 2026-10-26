@@ -1,0 +1,18 @@
+/* Animación al CAMBIAR DE TEMA, solo con CSS (sin JavaScript) mediante «transiciones de vista» entre páginas.
+   - Es la misma para todos los temas: una cortina circular que se abre desde la esquina superior derecha y revela el tema nuevo.
+   - Funciona en Edge, Chrome, Brave y Safari reciente. En navegadores sin soporte (p. ej. Firefox) el tema cambia al instante.
+   - Solo se anima cuando el servidor marca la página con data-cambio (una sola vez, justo tras elegir un tema).
+   - Respeta la opción «reducir movimiento» de Windows: sin ella activa, no hay animación. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+
+  /* Navegación normal: cambio instantáneo, sin fundidos que hagan sentir lento el sistema */
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+
+  /* Cambio de tema: la página nueva se revela encima de la anterior */
+  :root[data-cambio]::view-transition-group(root) { animation-duration: .85s; }
+  :root[data-cambio]::view-transition-old(root) { animation: none; z-index: 1; }
+  :root[data-cambio]::view-transition-new(root) { z-index: 2; animation: vt-cortina .85s cubic-bezier(.65, 0, .25, 1) both; }
+
+  @keyframes vt-cortina { from { clip-path: circle(0% at 100% 0); } to { clip-path: circle(150% at 100% 0); } }
+}

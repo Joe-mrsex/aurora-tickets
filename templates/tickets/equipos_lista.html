@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block titulo %}Equipos · {{ nombre_sistema }}{% endblock %}
+{% block contenido %}
+<div class="cabecera"><div><h1>Inventario de equipos</h1><p class="subtitulo">{{ pagina.paginator.count }} equipo(s)</p></div>
+<a class="btn" href="{% url 'tickets:equipo_nuevo' %}">+ Nuevo equipo</a></div>
+<form class="tarjeta filtros" method="get"><div style="flex:1"><label>Buscar</label><input type="search" name="q" value="{{ q }}" placeholder="Código, serie, marca, usuario..."></div>
+<div><button class="btn" type="submit">Buscar</button></div></form>
+<div class="tarjeta tabla-scroll"><table>
+<thead><tr><th>Código</th><th>Tipo</th><th>Marca / modelo</th><th>Serie</th><th>Asignado a</th><th>Ubicación</th><th>Estado</th></tr></thead><tbody>
+{% for e in pagina %}<tr>
+<td><a href="{% url 'tickets:equipo_editar' e.pk %}"><strong>{{ e.codigo }}</strong></a></td><td>{{ e.get_tipo_display }}</td><td>{{ e.marca }} {{ e.modelo }}</td>
+<td>{{ e.serial }}</td><td>{{ e.asignado_a.nombre_completo|default:"—" }}</td><td>{{ e.ubicacion }}</td><td>{% if e.activo %}Activo{% else %}<span class="ayuda">Baja</span>{% endif %}</td></tr>
+{% empty %}<tr><td colspan="7" class="ayuda" style="text-align:center;padding:30px">Sin equipos.</td></tr>{% endfor %}
+</tbody></table>{% include "_paginacion.html" with consulta="q="|add:q %}</div>
+{% endblock %}

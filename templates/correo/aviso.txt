@@ -1,0 +1,16 @@
+{% autoescape off %}Hola {{ nombre }},
+
+{{ titulo }}
+{% for linea in lineas %}
+{{ linea }}{% endfor %}
+{% if cita %}
+---
+{{ cita }}
+---
+{% endif %}
+{{ boton }}: {{ enlace }}
+
+--
+{{ sistema }}. Este aviso lo envió el sistema automáticamente; no respondas a este correo.
+Si no quieres recibir estos avisos, indícalo al área de TICS.
+{% endautoescape %}

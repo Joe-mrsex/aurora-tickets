@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block titulo %}Nuevo ticket · {{ nombre_sistema }}{% endblock %}
+{% block contenido %}
+<div class="tarjeta" style="max-width:760px">
+  <h1>Nuevo ticket</h1>
+  <p class="subtitulo">Cuéntanos qué necesitas. Mientras más detalle des, más rápido podremos ayudarte.</p>
+  <form method="post" enctype="multipart/form-data">{% csrf_token %}
+    {% include "_campos.html" %}
+    <p style="margin-top:18px"><button class="btn" type="submit">Enviar ticket</button>
+    <a class="btn secundario" href="{% url 'tickets:lista' %}">Cancelar</a></p>
+  </form>
+</div>
+{% endblock %}
